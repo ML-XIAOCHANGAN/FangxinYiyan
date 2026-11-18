@@ -1,0 +1,13 @@
+{
+  "name": "fangxin-relay",
+  "version": "1.0.0",
+  "description": "放心一眼：老人端与守护人端的配对中继（只转发，不落盘）",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.23.0"
+  }
+}
