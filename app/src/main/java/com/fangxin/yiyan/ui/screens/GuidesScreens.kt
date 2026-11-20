@@ -65,9 +65,14 @@ import com.fangxin.yiyan.ui.theme.Paper
 fun GuideListScreen(
     onBack: () -> Unit,
     onGuide: (String) -> Unit,
+    asTab: Boolean = false,
 ) {
     PageColumn {
-        TopBackBar(onBack = onBack, title = "回首页")
+        if (asTab) {
+            Spacer(Modifier.height(14.dp))
+        } else {
+            TopBackBar(onBack = onBack, title = "回首页")
+        }
 
         Text(
             "大字办事指引",
@@ -90,7 +95,9 @@ fun GuideListScreen(
         }
 
         NoticeCard("找不到，就问穿红马甲的导医。")
-        QuietButton(text = "回首页", onClick = onBack)
+        if (!asTab) {
+            QuietButton(text = "回首页", onClick = onBack)
+        }
     }
 }
 

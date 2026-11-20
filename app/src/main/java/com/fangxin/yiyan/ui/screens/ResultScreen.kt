@@ -58,15 +58,16 @@ import com.fangxin.yiyan.R
 import com.fangxin.yiyan.domain.CheckResult
 import com.fangxin.yiyan.domain.CheckSource
 import com.fangxin.yiyan.domain.Copy
+import com.fangxin.yiyan.domain.RiskDecision
 import com.fangxin.yiyan.domain.TextMasking
 import com.fangxin.yiyan.speech.SpeechController
-import com.fangxin.yiyan.ui.components.NoticeCard
 import com.fangxin.yiyan.ui.components.PageColumn
 import com.fangxin.yiyan.ui.components.PrimaryButton
 import com.fangxin.yiyan.ui.components.RiskBadge
 import com.fangxin.yiyan.ui.components.SecondaryButton
 import com.fangxin.yiyan.ui.components.SectionTitle
 import com.fangxin.yiyan.ui.components.TopBackBar
+import com.fangxin.yiyan.ui.components.TrustLine
 import com.fangxin.yiyan.ui.theme.Brand
 import com.fangxin.yiyan.ui.theme.Card as CardColor
 import com.fangxin.yiyan.ui.theme.Ink
@@ -115,33 +116,58 @@ fun ResultScreen(
         TopBackBar(onBack = onHome, title = "回首页")
 
         Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = palette.bg),
-            border = BorderStroke(1.5.dp, palette.color),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = palette.color),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
-            Column(modifier = Modifier.padding(18.dp)) {
-                RiskBadge(result.risk, result.label)
-                Spacer(Modifier.height(14.dp))
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(66.dp)
+                            .background(Color.White, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            when (result.risk) {
+                                RiskDecision.RED -> "!"
+                                RiskDecision.GREEN -> "✓"
+                                else -> "?"
+                            },
+                            color = palette.color,
+                            fontSize = 34.sp,
+                            fontWeight = FontWeight.Black,
+                        )
+                    }
+                    Spacer(Modifier.width(14.dp))
+                    Text(
+                        result.label,
+                        fontSize = 30.sp,
+                        lineHeight = 40.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
                 Text(
                     result.plain,
                     fontSize = 32.sp,
                     lineHeight = 46.sp,
                     fontWeight = FontWeight.Black,
-                    color = Ink,
+                    color = Color.White,
                 )
                 if (result.source == CheckSource.SAMPLE) {
                     Spacer(Modifier.height(10.dp))
                     Text(
                         "这是例子，不是您的消息。",
-                        fontSize = 17.sp,
-                        color = InkSoft,
+                        fontSize = 19.sp,
+                        color = Color.White,
                         modifier = Modifier
-                            .background(Color.White.copy(alpha = 0.8f), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 10.dp, vertical = 7.dp),
+                            .background(Color.White.copy(alpha = 0.18f), RoundedCornerShape(12.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                     )
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(18.dp))
                 Button(
                     onClick = {
                         if (speech.speaking) {
@@ -153,23 +179,22 @@ fun ResultScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 68.dp),
-                    shape = RoundedCornerShape(18.dp),
+                        .heightIn(min = 76.dp),
+                    shape = RoundedCornerShape(22.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (speech.speaking) palette.color else Color.White,
-                        contentColor = if (speech.speaking) Color.White else palette.deep,
+                        containerColor = Color.White,
+                        contentColor = palette.deep,
                     ),
-                    border = BorderStroke(1.5.dp, palette.color),
                 ) {
                     Icon(
                         if (speech.speaking) Icons.Rounded.Stop else Icons.Rounded.VolumeUp,
                         contentDescription = null,
-                        modifier = Modifier.size(26.dp),
+                        modifier = Modifier.size(28.dp),
                     )
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(10.dp))
                     Text(
                         if (speech.speaking) "停下" else "听一遍",
-                        fontSize = 20.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.ExtraBold,
                     )
                 }
@@ -207,7 +232,6 @@ fun ResultScreen(
         Card(
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(containerColor = CardColor),
-            border = BorderStroke(1.dp, Line),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(
@@ -253,7 +277,6 @@ fun ResultScreen(
         Card(
             shape = RoundedCornerShape(22.dp),
             colors = CardDefaults.cardColors(containerColor = CardColor),
-            border = BorderStroke(1.dp, Line),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column {
@@ -407,7 +430,7 @@ fun ResultScreen(
             }
         }
 
-        NoticeCard("照片没保存，也不用注册。")
+        TrustLine()
 
         PrimaryButton(
             text = if (result.fallback) "再试一次" else "再看一条",
@@ -429,42 +452,33 @@ private fun ActionRow(
     accent: Color,
     accentBg: Color,
 ) {
-    Card(
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (first) accentBg else CardColor,
-        ),
-        border = BorderStroke(if (first) 1.5.dp else 1.dp, if (first) accent else Line),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 60.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 15.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .size(if (first) 46.dp else 38.dp)
+                .background(if (first) accent else accentBg, CircleShape),
+            contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(if (first) accent else accentBg, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    "${index + 1}",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Black,
-                    color = if (first) Color.White else accent,
-                )
-            }
-            Spacer(Modifier.width(12.dp))
             Text(
-                text,
-                fontSize = 21.sp,
-                lineHeight = 31.sp,
-                fontWeight = if (first) FontWeight.ExtraBold else FontWeight.Medium,
-                color = Ink,
+                "${index + 1}",
+                fontSize = if (first) 21.sp else 18.sp,
+                fontWeight = FontWeight.Black,
+                color = if (first) Color.White else accent,
             )
         }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text,
+            fontSize = 21.sp,
+            lineHeight = 31.sp,
+            fontWeight = if (first) FontWeight.ExtraBold else FontWeight.Medium,
+            color = Ink,
+        )
     }
 }
 

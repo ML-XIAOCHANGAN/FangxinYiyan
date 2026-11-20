@@ -19,8 +19,9 @@ android {
         applicationId = "com.fangxin.yiyan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.0.3"
+        versionCode = 8
+        versionName = "1.0.6"
+        resValue("string", "app_name", "放心一眼")
 
         ndk {
             abiFilters += listOf("arm64-v8a", "armeabi-v7a")
@@ -69,6 +70,19 @@ android {
         }
     }
 }
+
+// AGP 默认输出 app-release.apk，交付要求安装包名为 放心一眼.apk
+extensions
+    .getByType(com.android.build.gradle.AppExtension::class.java)
+    .applicationVariants
+    .all {
+        if (name == "release") {
+            outputs.forEach { output ->
+                (output as? com.android.build.gradle.internal.api.BaseVariantOutputImpl)
+                    ?.outputFileName = "放心一眼.apk"
+            }
+        }
+    }
 
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2024.12.01")

@@ -8,7 +8,7 @@ enum class CheckSource { PHOTO, ALBUM, TEXT, SAMPLE }
 
 enum class UserRole { ELDER, GUARDIAN }
 
-const val DEFAULT_RELAY_URL = "https://fangxin-yiyan-3va64w6zkj2.qoder.website"
+const val DEFAULT_RELAY_URL = "https://fangxin-yiyan-oqspdkiq3lk.qoder.zone"
 
 data class TermRule(
     val word: String,

@@ -38,12 +38,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.fangxin.yiyan.domain.UserRole
 import com.fangxin.yiyan.service.ScreenShareService
 import com.fangxin.yiyan.speech.SpeechController
 import com.fangxin.yiyan.ui.components.AppSheet
+import com.fangxin.yiyan.ui.components.ELDER_TABS
+import com.fangxin.yiyan.ui.components.ElderBottomBar
 import com.fangxin.yiyan.ui.components.HelpSheetContent
 import com.fangxin.yiyan.ui.components.HistorySheetContent
 import com.fangxin.yiyan.ui.components.PrivacySheetContent
@@ -57,6 +60,8 @@ import com.fangxin.yiyan.ui.screens.GuardianWatchScreen
 import com.fangxin.yiyan.ui.screens.GuideDetailScreen
 import com.fangxin.yiyan.ui.screens.GuideListScreen
 import com.fangxin.yiyan.ui.screens.HomeScreen
+import com.fangxin.yiyan.ui.screens.LearnScreen
+import com.fangxin.yiyan.ui.screens.MineScreen
 import com.fangxin.yiyan.ui.screens.ResultScreen
 import com.fangxin.yiyan.ui.screens.RoleSelectScreen
 import com.fangxin.yiyan.ui.screens.SamplesScreen
@@ -80,6 +85,8 @@ class MainActivity : ComponentActivity() {
 
 private object Routes {
     const val HOME = "home"
+    const val LEARN = "learn"
+    const val MINE = "mine"
     const val CHECK = "check"
     const val CAMERA = "camera"
     const val TEXT = "text"
@@ -104,15 +111,15 @@ private object GuardianRoutes {
 private fun FangxinApp(viewModel: FangxinViewModel = viewModel()) {
     val settings by viewModel.settings.collectAsState()
 
-    FangxinTheme(largeText = settings.largeText) {
-        when (settings.role) {
-            null -> RoleSelectScreen(
+    when (settings.role) {
+        null -> FangxinTheme(largeText = false) {
+            RoleSelectScreen(
                 onElder = { viewModel.setRole(UserRole.ELDER) },
                 onGuardian = { viewModel.setRole(UserRole.GUARDIAN) },
             )
-            UserRole.ELDER -> ElderApp(viewModel)
-            UserRole.GUARDIAN -> GuardianApp(viewModel)
         }
+        UserRole.ELDER -> FangxinTheme(largeText = settings.largeText) { ElderApp(viewModel) }
+        UserRole.GUARDIAN -> FangxinTheme(largeText = false) { GuardianApp(viewModel) }
     }
 }
 
@@ -175,10 +182,31 @@ private fun ElderApp(viewModel: FangxinViewModel) {
         navController.popBackStack(Routes.HOME, inclusive = false)
     }
 
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val showBottomBar = ELDER_TABS.any { it.route == currentRoute }
+    val goTab: (String) -> Unit = { route ->
+        if (route != currentRoute) {
+            navController.navigate(route) {
+                popUpTo(Routes.HOME) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             containerColor = Paper,
             snackbarHost = { SnackbarHost(snackbarHostState) },
+            bottomBar = {
+                if (showBottomBar) {
+                    ElderBottomBar(
+                        currentRoute = currentRoute,
+                        onSelect = goTab,
+                    )
+                }
+            },
         ) { padding ->
             Box(
                 modifier = Modifier
@@ -198,17 +226,31 @@ private fun ElderApp(viewModel: FangxinViewModel) {
                             onCamera = { navController.navigate(Routes.CAMERA) },
                             onText = { navController.navigate(Routes.TEXT) },
                             onSample = { navController.navigate(Routes.SAMPLES) },
-                            onGuides = { navController.navigate(Routes.GUIDES) },
-                            onGuide = { id -> navController.navigate(Routes.guide(id)) },
-                            onHistory = { sheet = AppSheet.HISTORY },
-                            onSettings = { navController.navigate(Routes.SETTINGS) },
-                            onPrivacy = { sheet = AppSheet.PRIVACY },
-                            onDialHotline = { Intents.dial(context, Intents.HOTLINE) },
                             onAssistant = { navController.navigate(Routes.ASSISTANT) },
+                            onHistory = { sheet = AppSheet.HISTORY },
+                            onPrivacy = { sheet = AppSheet.PRIVACY },
                             onOpenHistoryItem = { item ->
                                 viewModel.openHistory(item)
                                 openResult()
                             },
+                        )
+                    }
+
+                    composable(Routes.LEARN) {
+                        LearnScreen()
+                    }
+
+                    composable(Routes.MINE) {
+                        MineScreen(
+                            history = history,
+                            onOpenHistoryItem = { item ->
+                                viewModel.openHistory(item)
+                                openResult()
+                            },
+                            onSettings = { navController.navigate(Routes.SETTINGS) },
+                            onPrivacy = { sheet = AppSheet.PRIVACY },
+                            onHelp = { sheet = AppSheet.HELP },
+                            onDialHotline = { Intents.dial(context, Intents.HOTLINE) },
                         )
                     }
 
@@ -276,6 +318,7 @@ private fun ElderApp(viewModel: FangxinViewModel) {
                         GuideListScreen(
                             onBack = popBack,
                             onGuide = { id -> navController.navigate(Routes.guide(id)) },
+                            asTab = true,
                         )
                     }
 

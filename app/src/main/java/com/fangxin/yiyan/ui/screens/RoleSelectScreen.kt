@@ -91,14 +91,14 @@ fun RoleSelectScreen(
         RoleCard(
             icon = Icons.Rounded.Person,
             title = "我是中老年人",
-            subtitle = "大字大按钮，帮您看骗子、办事情",
+            subtitle = "大字大按钮，字还能再放大",
             highlighted = true,
             onClick = onElder,
         )
         RoleCard(
             icon = Icons.Rounded.Shield,
             title = "我是守护人（家人）",
-            subtitle = "看老人收到的警报，远程看一眼屏幕",
+            subtitle = "常规字号，看老人发来的警报",
             highlighted = false,
             onClick = onGuardian,
         )

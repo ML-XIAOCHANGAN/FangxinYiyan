@@ -207,7 +207,7 @@ class FloatingMascotService : Service() {
     private fun startForegroundNotification() {
         ensureChannel()
         val notification = NotificationCompat.Builder(this, CHANNEL_FLOATING)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_owl)
             .setLargeIcon(BitmapFactory.decodeResource(resources, R.drawable.owl_head_idle))
             .setContentTitle("猫头鹰在桌面陪您")
             .setContentText("点它就能回到放心一眼")

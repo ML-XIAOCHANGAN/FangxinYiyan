@@ -67,6 +67,7 @@ import com.fangxin.yiyan.ui.theme.Line
 import com.fangxin.yiyan.ui.theme.LineStrong
 import com.fangxin.yiyan.ui.theme.NoticeBg
 import com.fangxin.yiyan.ui.theme.Paper
+import com.fangxin.yiyan.ui.theme.WarmBg
 import com.fangxin.yiyan.ui.theme.riskPalette
 
 @Composable
@@ -142,7 +143,7 @@ fun BrandHeader(
                 color = Ink,
             )
             Text(
-                "帮您看一眼，再决定",
+                "帮您看一眼",
                 style = MaterialTheme.typography.labelMedium,
                 color = InkMute,
             )
@@ -175,6 +176,37 @@ private fun HeaderChip(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 13.dp),
         )
+    }
+}
+
+@Composable
+fun MascotBubble(text: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.owl_idle),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.size(56.dp),
+        )
+        Spacer(Modifier.width(10.dp))
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp))
+                .background(WarmBg)
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "小望：$text",
+                style = MaterialTheme.typography.labelMedium,
+                color = Ink,
+                fontWeight = FontWeight.Bold,
+            )
+        }
     }
 }
 
@@ -212,8 +244,8 @@ fun PrimaryButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 76.dp),
-        shape = RoundedCornerShape(20.dp),
+            .heightIn(min = 84.dp),
+        shape = RoundedCornerShape(24.dp),
         border = if (enabled) null else BorderStroke(1.5.dp, LineStrong),
         colors = ButtonDefaults.buttonColors(
             containerColor = Brand,
@@ -221,13 +253,13 @@ fun PrimaryButton(
             disabledContainerColor = DisabledBg,
             disabledContentColor = DisabledInk,
         ),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
     ) {
         if (icon != null) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.width(10.dp))
+            Icon(icon, contentDescription = null, modifier = Modifier.size(30.dp))
+            Spacer(Modifier.width(12.dp))
         }
-        Text(text, fontSize = 21.sp, fontWeight = FontWeight.ExtraBold)
+        Text(text, fontSize = 23.sp, fontWeight = FontWeight.ExtraBold)
     }
 }
 
@@ -244,8 +276,8 @@ fun SecondaryButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 68.dp),
-        shape = RoundedCornerShape(20.dp),
+            .heightIn(min = 74.dp),
+        shape = RoundedCornerShape(24.dp),
         border = BorderStroke(1.5.dp, if (enabled) LineStrong else Line),
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = CardColor,
@@ -253,13 +285,13 @@ fun SecondaryButton(
             disabledContainerColor = Paper,
             disabledContentColor = InkMute,
         ),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
     ) {
         if (icon != null) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(26.dp))
-            Spacer(Modifier.width(8.dp))
+            Icon(icon, contentDescription = null, modifier = Modifier.size(28.dp))
+            Spacer(Modifier.width(10.dp))
         }
-        Text(text, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(text, fontSize = 21.sp, fontWeight = FontWeight.Bold)
     }
 }
 

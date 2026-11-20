@@ -12,7 +12,7 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-const val ASSISTANT_ORIGIN = "https://fangxin-yiyan-home-3va64w6zkj2.qoder.website"
+const val ASSISTANT_ORIGIN = "https://fangxin-yiyan-oqspdkiq3lk.qoder.zone"
 private const val ASSISTANT_URL = "$ASSISTANT_ORIGIN/functions/v1/app/ask"
 
 enum class OwlMood { IDLE, THINKING, CHAT, RED, AMBER, ERROR }

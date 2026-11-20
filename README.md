@@ -5,9 +5,9 @@
 - **我是中老年人**：拍一张可疑短信/通知，或把字贴进来，给出红/黄/绿三色结论和三步动作，可朗读、可转发给家人；外加大字办事指引。
 - **我是守护人（子女）**：收到老人那边的警报推送，看警报详情，老人在本机同意后还能实时看到老人屏幕，远程教他怎么办。
 
-首次打开先选身份，选完记住；两边的设置页都能随时换成另一种身份。老人和子女不是同一台手机时，靠 **6 位配对码** 连上同一个云端中转（Qoder Sites 上的 Edge Function + 数据库）。
+首次打开先选身份，选完记住；两边的设置页都能随时换成另一种身份。老人和子女不是同一台手机时，靠 **9 位配对码** 连上同一个云端中转（Qoder Sites 上的 Edge Function + 数据库）。旧版 6 位码仍可连接，只为兼容已配对的设备。
 
-> **在线产品页**：https://fangxin-yiyan-3va64w6zkj2.qoder.website/#boundary
+> **在线产品页**：https://fangxin-yiyan-oqspdkiq3lk.qoder.zone/
 >
 > **产品说明**：[产品说明](docs/product.md)
 >
@@ -49,7 +49,7 @@
    - 相机需要真机或带相机的模拟器；相册、打字、例子、指引不依赖相机。
    - 朗读依赖系统中文 TTS；语音输入依赖系统语音识别服务。
 4. 双端联动默认已经连好云端中转，**不用起任何本地服务**：
-   `DEFAULT_RELAY_URL = https://fangxin-yiyan-3va64w6zkj2.qoder.website`（`domain/Types.kt`）。
+   `DEFAULT_RELAY_URL = https://fangxin-yiyan-oqspdkiq3lk.qoder.zone`（`domain/Types.kt`）。
    两台手机装同一个版本、填同一个配对码即可。要换成自建中转，在双方“设置 → 连不上时”里填同一个地址。
 
 > 目录里的 `relay-server/` 是早期自建 WebSocket 中继，App 已不再使用，仅留作本地调试参考。
@@ -59,13 +59,15 @@
 ```bash
 ./gradlew :app:assembleDebug
 ./gradlew :app:testDebugUnitTest
+./gradlew :app:assembleRelease    # 交付包，产物 app/build/outputs/apk/release/放心一眼.apk
 ```
 
-Windows 下用 `gradlew.bat`。
+Windows 下用 `gradlew.bat`；本目录含中文时 cmd 会把它截断成无效路径，改用 Git Bash 执行
+`JAVA_HOME=<JDK17> ./gradlew :app:assembleRelease`。
 
 ## 双端怎么连、怎么用
 
-1. 老人手机选“我是中老年人”，设置页里拿到 6 位配对码；**把码念给子女**。
+1. 老人手机选“我是中老年人”，设置页里拿到 9 位配对码（屏幕上按 3-3-3 分组显示）；**分组念给子女**。
 2. 子女手机选“我是守护人”，输入配对码点“连上老人手机”。双方状态点变绿即在线。
 3. 老人这边识别出红/黄结论（绿卡和例子不推），自动把 **打码后的结论** 推给守护人，守护人收到高优先级通知。
 4. 守护人在警报页点“看看老人屏幕”，老人手机会弹出“家人想看看您的屏幕”，**每次都要老人自己点同意**，再走系统录屏授权（Android 14+ 已固定为整屏，不再让老人挑应用）。
@@ -185,8 +187,19 @@ relay-server/                # 早期自建 ws 中继，App 已不再使用（�
   - 模拟老人推一帧 480×800 JPEG → 守护人全屏页立即显示该画面。
   - 调用 `/relay/stop` 后，再以守护人身份轮询，`frame` 为 `null`，云端不再留画面。
 
+2026-11-19 交付包构建与发布验证：
+
+- `:app:assembleRelease` 构建成功，产物 `app/build/outputs/apk/release/放心一眼.apk`（versionCode 8 / versionName 1.0.6，22,627,187 字节）。
+- `apksigner verify` 通过（APK Signature Scheme v2），签名证书 `CN=Fangxin Yiyan`，来自 `keystore/fangxin-release.jks`；
+  `aapt2 dump badging` 确认桌面应用名为「放心一眼」、包名 `com.fangxin.yiyan`。
+- 安装包已发布到 QoderCN 站点，线上 `https://fangxin-yiyan-oqspdkiq3lk.qoder.zone/download/fangxin-yiyan.apk`
+  返回 200 且字节数与本地一致；介绍页、帮助页、隐私页的下载按钮保存名为「放心一眼.apk」。
+- 线上中转回归：`/relay/health` 返回 `{"ok":true}`；`/relay/join`（elder）返回 `presence.elder=true`，
+  同房间 `/relay/poll`（guardian）读到在线状态，数据库读写正常。
+
 已知限制：
 
+- 本次改动只涉及安装包命名与桌面显示名，未重装覆盖已有 1.0.6（同 versionCode 8）复走 UI；升级安装与全新安装都按同一签名，理论兼容但未实测。
 - 相册选图、真实拍照识别、TTS 在真机上的音色未验证（模拟器无真实场景）；`96110` 拨号按钮只验证了可点，未真实外呼。
 - 双机跨设备走查未做（手头只有一台模拟器），对端用云端接口模拟；两台真机同房间的并发时序未压测。
 - 屏幕共享 5 分钟自动停止、守护端全屏画面的长时间稳定性未做满时长验证（代码里 `MAX_DURATION_MS = 5 分钟`）。
