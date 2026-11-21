@@ -37,9 +37,17 @@
 | --- | --- |
 | ![老人端首页](docs/screenshots/home.png) | ![风险结论](docs/screenshots/result.png) |
 
+| 学防骗 | 办事指引 |
+| --- | --- |
+| ![学防骗](docs/screenshots/learn.png) | ![办事指引](docs/screenshots/guide.png) |
+
 | 守护人端 | 大字模式 |
 | --- | --- |
 | ![守护人端](docs/screenshots/guardian.png) | ![大字模式](docs/screenshots/large-text.png) |
+
+| 我的 | 问问小望 |
+| --- | --- |
+| ![我的](docs/screenshots/mine.png) | ![问问小望](docs/screenshots/assistant.png) |
 
 ## 运行
 
@@ -197,9 +205,27 @@ relay-server/                # 早期自建 ws 中继，App 已不再使用（�
 - 线上中转回归：`/relay/health` 返回 `{"ok":true}`；`/relay/join`（elder）返回 `presence.elder=true`，
   同房间 `/relay/poll`（guardian）读到在线状态，数据库读写正常。
 
+2026-11-20 应用图标更换与 1.0.7 发布验证：
+
+- 桌面图标换成软 3D 猫头鹰（戴金丝圆框眼镜、胸前红灯笼、奶油底+金环背景），源图 `vibe_images/yiyan-icon-bg-b-cream_*.png`。
+  自适应图标仍是一层结构：`mipmap-anydpi-v26/ic_launcher.xml` 的 background 指向 `drawable-nodpi/ic_launcher_full.png`，
+  foreground 为透明，`minSdk = 26` 所以不需要各密度旧版 PNG。新图 1024×1024、915,505 字节。
+- 按自适应图标 66dp 安全区（108dp 层的中心 61%）做过合成遮罩预览：眼镜、脸、灯笼完整，仅脚底被圆角削掉一点。
+- `:app:assembleRelease` 构建成功，产物 `app/build/outputs/apk/release/放心一眼.apk`（versionCode 9 / versionName 1.0.7，23,292,839 字节）。
+  `apksigner verify` 通过，证书仍为 `CN=Fangxin Yiyan`（与 1.0.6 同一把 `keystore/fangxin-release.jks`，覆盖安装依赖签名一致）；
+  `aapt2 dump badging` 确认 `versionCode='9' versionName='1.0.7'`、桌面名「放心一眼」；`aapt2 dump resources` 里
+  `drawable/ic_launcher_full` 指向的 `res/fE.png` 与源图 md5 一致，确认新图标确实进了包。
+- 站点已发布到 QoderCN（新 actionId `ced88e9d-3c62-4066-9833-c1cc7e28300a`，`published=true`）：
+  首页 200 且版本卡显示 v1.0.7；`https://fangxin-yiyan-oqspdkiq3lk.qoder.zone/download/fangxin-yiyan.apk`
+  Content-Length 23,292,839，整包下载后 md5 与本地构建完全一致；
+  `/functions/v1/app/api/health` 返回 `{"ok":true,"database":"ok"}`，`/functions/v1/app/relay/health` 返回 `{"ok":true}`。
+  主域 `/relay/health` 返回 404 属平台路由规则（函数只在 `/functions/v1/app/…` 暴露），不是故障。
+
 已知限制：
 
-- 本次改动只涉及安装包命名与桌面显示名，未重装覆盖已有 1.0.6（同 versionCode 8）复走 UI；升级安装与全新安装都按同一签名，理论兼容但未实测。
+- 未做真机覆盖安装实测：1.0.6 → 1.0.7 同签名同包名，升级安装与全新安装理论兼容但未验证；新图标在真机桌面与不同启动器
+  遮罩下的实际显示效果也只做了合成预览。
+- 1.0.6 交付时同样只改了安装包命名与桌面显示名，未重装覆盖已有 1.0.6（同 versionCode 8）复走 UI。
 - 相册选图、真实拍照识别、TTS 在真机上的音色未验证（模拟器无真实场景）；`96110` 拨号按钮只验证了可点，未真实外呼。
 - 双机跨设备走查未做（手头只有一台模拟器），对端用云端接口模拟；两台真机同房间的并发时序未压测。
 - 屏幕共享 5 分钟自动停止、守护端全屏画面的长时间稳定性未做满时长验证（代码里 `MAX_DURATION_MS = 5 分钟`）。

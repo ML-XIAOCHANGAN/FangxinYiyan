@@ -19,8 +19,8 @@ android {
         applicationId = "com.fangxin.yiyan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.6"
+        versionCode = 9
+        versionName = "1.0.7"
         resValue("string", "app_name", "放心一眼")
 
         ndk {
